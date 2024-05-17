@@ -1,1 +1,305 @@
+html = open('net.html', 'w', encoding='utf-8')
+html_page = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BNENU</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
 
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type=submit] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+
+        button {
+            display: none;
+            background-color: #008CBA;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #006B8F;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .cost {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue sur la banque nationale des Emirats Nathaniel Unis</h1>
+
+        <h2>Connexion</h2>
+        <form id="login-form">
+            <label for="username">Identifiant :</label>
+            <input type="text" id="username" name="username"><br><br>
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" name="password"><br><br>
+            <input type="submit" value="Se connecter">
+        </form>
+
+        <p id="result"></p>
+        <button id="website-button" disabled>Voir les sites</button>
+        <button id="add-balance-button" class="cost">Ajouter au solde</button>
+        <button id="order-lemonade-button" class="cost" disabled>Commander limonade</button>
+        <button id="massage-5min-button" class="cost" disabled>Massage 5 min</button>
+        <button id="massage-10min-button" class="cost" disabled>Massage 10 min</button>
+        <button id="massage-15min-button" class="cost" disabled>Massage 15 min</button>
+        <span id="message"></span>
+    </div>
+
+    <script>
+        const authorizedUsers = [
+            { username: 'LELEADER', password: 'LEROI', balance: 0, salary: 10000 },
+            { username: 'tristan', password: '13579', balance: 0, salary: 0 },
+            { username: 'admin', password: 'admin', balance: 0, salary: 30 },
+            { username: 'habdoul', password: 'cestmoilebosshabdoul1789', balance: 45, salary: 7 },
+            { username: 'lesupervizir', password: 'coupecoupe', balance: 0, salary: 5 },
+            { username: 'aydan', password: 'aydan', balance: 25, salary: 15 },
+            { username: 'maximou', password: 'maxime', balance: 10, salary: 10},
+            { username: 'banque', password: 'banqueadmin', balance: 1000, salary: 100},
+            { username: 'dandelion', password: 'danny2012', balance: 50, salary: 2},
+            { username: 'mathdojo', password: 'classdojo', balance: 50, salary: 2},
+            { username: 'tlamblaha', password: 'nessim', balance: 100, salary: 5},
+            { username: 's.petibon', password: 's.petibon', balance: 25, salary: 20},
+            { username: 'lcpandalord', password: 'loic2012', balance: 100, salary: 10},
+
+        ];
+
+        const loginForm = document.getElementById('login-form');
+        const resultElement = document.getElementById('result');
+        const websiteButton = document.getElementById('website-button');
+        const addBalanceButton = document.getElementById('add-balance-button');
+        const orderLemonadeButton = document.getElementById('order-lemonade-button');
+        const massage5MinButton = document.getElementById('massage-5min-button');
+        const massage10MinButton = document.getElementById('massage-10min-button');
+        const massage15MinButton = document.getElementById('massage-15min-button');
+        const messageSpan = document.getElementById('message');
+        const costButtons = document.querySelectorAll('.cost');
+        
+      
+
+        let sitesVisited = 0;
+        const siteNames = ['anura.pro', 'proxypx', 'Google traduction', 'invisible.abatek.com'];
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const matchingUser = authorizedUsers.find(user => user.username === username && user.password === password);
+
+            if (matchingUser) {
+                const storedBalance = localStorage.getItem(matchingUser.username);
+                const lastSalaryDate = localStorage.getItem(matchingUser.username + '_lastSalaryDate');
+                const currentDate = new Date();
+
+                if (storedBalance !== null) {
+                    matchingUser.balance = parseInt(storedBalance);
+                }
+
+                if (lastSalaryDate) {
+                    const lastSalaryDateObj = new Date(lastSalaryDate);
+                                        const hoursSinceLastSalary = (currentDate - lastSalaryDateObj) / 36e5;
+
+                    if (hoursSinceLastSalary >= 24) {
+                        matchingUser.balance += matchingUser.salary;
+                        localStorage.setItem(matchingUser.username, matchingUser.balance);
+                        localStorage.setItem(matchingUser.username + '_lastSalaryDate', currentDate.toString());
+                        resultElement.textContent = `Bienvenue ${matchingUser.username} ! Votre solde est de ${matchingUser.balance} abdouls (incluant ${matchingUser.salary} abdouls de salaire).`;
+                    } else {
+                        resultElement.textContent = `Bienvenue ${matchingUser.username} ! Votre solde est de ${matchingUser.balance} abdouls.`;
+                    }
+                } else {
+                    localStorage.setItem(matchingUser.username + '_lastSalaryDate', currentDate.toString());
+                    resultElement.textContent = `Bienvenue ${matchingUser.username} ! Votre solde est de ${matchingUser.balance} abdouls.`;
+                }
+
+                localStorage.setItem(matchingUser.username, matchingUser.balance);
+
+                // Affiche les boutons et leurs coÃ»ts correspondants
+                costButtons.forEach(button => button.style.display = 'inline-block');
+
+                // Met Ã  jour la disponibilitÃ© des boutons en fonction du solde
+                updateButtonAvailability(matchingUser.balance);
+            } else {
+                resultElement.textContent = 'Identifiants incorrects';
+            }
+        });
+
+        function updateButtonAvailability(balance) {
+            if (balance > 49) {
+                websiteButton.disabled = false;
+            } else {
+                websiteButton.disabled = true;
+            }
+
+            if (balance > 99) {
+                orderLemonadeButton.disabled = false;
+            } else {
+                orderLemonadeButton.disabled = true;
+            }
+
+            if (balance >= 25) {
+                massage5MinButton.disabled = false;
+            } else {
+                massage5MinButton.disabled = true;
+            }
+
+            if (balance >= 50) {
+                massage10MinButton.disabled = false;
+            } else {
+                massage10MinButton.disabled = true;
+            }
+
+            if (balance >= 75) {
+                massage15MinButton.disabled = false;
+            } else {
+                massage15MinButton.disabled = true;
+            }
+        }
+
+        websiteButton.addEventListener('click', function() {
+            const matchingUser = authorizedUsers.find(user => user.username === document.getElementById('username').value);
+
+            if (matchingUser.balance > 49) {
+                matchingUser.balance -= 50;
+                localStorage.setItem(matchingUser.username, matchingUser.balance);
+
+                const randomIndex = Math.floor(Math.random() * siteNames.length);
+                const randomSite = siteNames[randomIndex];
+                resultElement.textContent = `Le site est ${randomSite}. Votre nouveau solde est de ${matchingUser.balance} abdouls.`;
+
+                sitesVisited++;
+
+                if (sitesVisited === 4) {
+                    messageSpan.textContent = 'Vous avez vu les quatre sites !';
+                } else {
+                    messageSpan.textContent = '';
+                }
+
+                if (matchingUser.balance <= 49) {
+                    websiteButton.disabled = true;
+                }
+            } else {
+                resultElement.textContent = `Votre solde est insuffisant pour voir les sites.`;
+            }
+        });
+
+        addBalanceButton.addEventListener('click', function() {
+            const matchingUser = authorizedUsers.find(user => user.username === document.getElementById('username').value);
+            const password = prompt('Entrez votre mot de passe pour ajouter au solde :');
+
+            if (password === 'youtubeenigmaafk7') {
+                const amountToAdd = parseFloat(prompt('Entrez le montant Ã  ajouter Ã  votre solde :'));
+                matchingUser.balance += amountToAdd;
+
+                localStorage.setItem(matchingUser.username, matchingUser.balance);
+
+                resultElement.textContent = `Votre nouveau solde est de ${matchingUser.balance} abdouls.`;
+
+                updateButtonAvailability(matchingUser.balance);
+            } else {
+                alert('Mot de passe incorrect');
+            }
+        });
+
+        orderLemonadeButton.addEventListener('click', function() {
+            const matchingUser = authorizedUsers.find(user => user.username === document.getElementById('username').value);
+
+            if (matchingUser.balance > 99) {
+                matchingUser.balance -= 100;
+                localStorage.setItem(matchingUser.username, matchingUser.balance);
+
+                resultElement.textContent = `Votre commande de limonade a Ã©tÃ© enregistrÃ©e. Votre nouveau solde est de ${matchingUser.balance} abdouls.`;
+
+                if (matchingUser.balance <= 99) {
+                    orderLemonadeButton.disabled = true;
+                }
+            } else {
+                resultElement.textContent = `Votre solde est insuffisant pour commander une limonade.`;
+            }
+        });
+
+        function sendMassagePayment(duration) {
+            const matchingUser = authorizedUsers.find(user => user.username === document.getElementById('username').value);
+            const recipientUser = authorizedUsers.find(user => user.username === 'aydan');
+
+            if (matchingUser.balance >= duration) {
+                matchingUser.balance -= duration;
+                recipientUser.balance += duration;
+                localStorage.setItem(matchingUser.username, matchingUser.balance);
+                localStorage.setItem(recipientUser.username, recipientUser.balance);
+
+                resultElement.textContent = `Vous avez commandÃ© un massage de ${duration} minutes. Votre nouveau solde est de ${matchingUser.balance} abdouls.`;
+
+                updateButtonAvailability(matchingUser.balance);
+            } else {
+                resultElement.textContent = `Votre solde est insuffisant pour commander un massage de ${duration} minutes.`;
+            }
+        }
+
+        massage5MinButton.addEventListener('click', function() {
+            sendMassagePayment(25);
+        });
+
+        massage10MinButton.addEventListener('click', function() {
+            sendMassagePayment(50);
+        });
+
+        massage15MinButton.addEventListener('click', function() {
+            sendMassagePayment(75);
+        });
+    </script>
+</body>
+</html>
+'''
+html.write(html_page)
+html.close()
